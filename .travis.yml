@@ -1,0 +1,19 @@
+sudo: required
+
+services:
+  - docker
+
+script:
+  - docker build --iidfile iid .
+  - docker run -v $(pwd)/goss.yaml:/goss.yaml $(cat iid) sh -c 'apk update; apk add curl; curl -fsSL https://goss.rocks/install | sh; goss validate'
+
+after_success:
+  - LATEST_VERSION=$(docker run oxeva/dockerlint:latest dockerlint -h | head -n1 | awk '{print $2}')
+  - DOCKERLINT_VERSION=$(docker run $(cat iid) dockerlint -h | head -n1 | awk '{print $2}')
+  - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+  - docker tag $(cat iid) oxeva/dockerlint:$DOCKERLINT_VERSION
+  - docker tag $(cat iid) oxeva/dockerlint:$(echo $DOCKERLINT_VERSION | cut -d. -f 1,2)
+  - if [ "$(echo -e "$LATEST_VERSION\n$DOCKERLINT_VERSION" | sort -V | head -n1)" == "$LATEST_VERSION" ]; then
+    docker tag $(cat iid) oxeva/dockerlint:latest
+    fi
+  - docker push oxeva/dockerlint

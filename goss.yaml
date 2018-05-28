@@ -1,0 +1,5 @@
+command:
+  dockerlint -h:
+    exit-status: 0
+    stdout:
+      - Dockerlint
