@@ -17,5 +17,11 @@ Usage
 Sample of project scanning :
 
 ```sh
+docker run --rm -v $PWD/Dockerfile:/Dockerfile oxeva/dockerlint
+```
+
+or :
+
+```sh
 docker run --rm -v $PWD:/project oxeva/dockerlint dockerlint -f /project/Dockerfile
 ```
